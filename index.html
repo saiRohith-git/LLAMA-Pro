@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>LLM Chat Interface</title>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM Chat Interface</h1>
+        <div class="chat-box" id="chat-box">
+            <!-- Chat messages will appear here -->
+        </div>
+        <form id="chat-form">
+            <input type="text" id="user-input" placeholder="Type your prompt...">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatForm = document.getElementById('chat-form');
+            const userInput = document.getElementById('user-input');
+            const chatBox = document.getElementById('chat-box');
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const userMessage = userInput.value;
+                if (!userMessage) return;
+                // Append user message to the chat box
+                chatBox.innerHTML += `<div class="user-message">${userMessage}</div>`;
+                // Send the user message to the server and get a response
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    body: new URLSearchParams({ prompt: userMessage }),
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                });
+                const responseData = await response.json();
+                const botMessage = responseData.response;
+                // Append the bot's response to the chat box
+                chatBox.innerHTML += `<div class="bot-message">${botMessage}</div>`;
+                userInput.value = '';
+            });
+        });
+    </script>
+</body>
+</html>
